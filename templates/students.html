@@ -1,0 +1,269 @@
+<!-- templates/students.html -->
+{% extends "base.html" %}
+
+{% block title %}Öğrenciler - Yoga Finance{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+      <a class="nav-link active student-tab" href="/students">Öğrenciler</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link volunteer-tab" href="/volunteers">Gönüllüler</a>
+    </li>
+  </ul>
+</div>
+<style>
+  .nav-tabs .nav-link {
+    color: #0d6efd;
+    background: none;
+    border: 1px solid transparent;
+    font-weight: 500;
+  }
+  .nav-tabs .nav-link.active.student-tab,
+  .nav-tabs .nav-link.active.volunteer-tab {
+    background: #fff;
+    color: #343A40 !important;
+    border: 1px solid #dee2e6;
+    border-bottom: none;
+    font-weight: bold;
+  }
+  /* DARK MODE OVERRIDES */
+  body.dark-mode .nav-tabs .nav-link {
+    color: #90caf9 !important;
+  }
+  body.dark-mode .nav-tabs .nav-link.active.student-tab,
+  body.dark-mode .nav-tabs .nav-link.active.volunteer-tab {
+    background: #23272b !important;
+    color: #fff !important;
+    border: 1px solid #333 !important;
+    border-bottom: none;
+  }
+  body.dark-mode .table,
+  body.dark-mode table {
+    background-color: #23272b !important;
+    color: #e0e0e0 !important;
+  }
+  body.dark-mode .table-striped > tbody > tr:nth-of-type(odd),
+  body.dark-mode table.table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: #23272b !important;
+  }
+  body.dark-mode .table-striped > tbody > tr:nth-of-type(even),
+  body.dark-mode table.table-striped > tbody > tr:nth-of-type(even) {
+    background-color: #181a1b !important;
+  }
+  body.dark-mode .table thead th,
+  body.dark-mode table thead th {
+    color: #fff !important;
+    background-color: #23272b !important;
+    border-color: #444 !important;
+  }
+  body.dark-mode .table-bordered th, body.dark-mode .table-bordered td {
+    border-color: #444 !important;
+  }
+  body.dark-mode .badge.bg-success {
+    background-color: #388e3c !important;
+    color: #fff !important;
+  }
+  body.dark-mode .text-muted {
+    color: #b0b0b0 !important;
+  }
+</style>
+<h1 class="mb-4">Öğrenciler</h1>
+<a href="{{ url_for('add_student') }}" class="btn btn-primary mb-3">
+    <i class="bi bi-plus"></i> Yeni Öğrenci Ekle
+</a>
+<!-- Genel Özel Ders Ekle Butonu -->
+<button class="btn btn-success mb-3 ms-2" data-bs-toggle="modal" data-bs-target="#specialLessonModal">
+    <i class="bi bi-person-video3"></i> Özel Ders Ekle
+</button>
+<a id="monthly-students-list"></a>
+<table class="table table-striped table-bordered table-dark">
+    <thead class="thead-dark">
+        <tr>
+            <th>Ad Soyad</th>
+            <th>Telefon</th>
+            <th>Kayıt Tarihi</th>
+            <th>Ders Ücreti</th>
+            <th>Notlar</th>
+            <th>Gönüllü</th>
+            <th>İşlemler</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for student in students %}
+        <tr>
+            <td>
+                <a href="/students/{{ student.id }}" class="link-light">{{ student.name }}</a>
+                {% if student.volunteer %}
+                    <span title="Gönüllü" style="color: #28a745; font-size: 1.2em;">★</span>
+                {% endif %}
+            </td>
+            <td>{{ student.phone }}</td>
+            <td>{{ student.registration_date.strftime('%Y-%m-%d') }}</td>
+            <td>₺{{ '%.2f'|format(student.lesson_fee) }}</td>
+            <td>{{ student.notes }}</td>
+            <td>
+                {% if student.volunteer %}
+                    <span class="badge bg-success">Gönüllü</span>
+                {% else %}
+                    <span class="text-muted">-</span>
+                {% endif %}
+            </td>
+            <td>
+                <a href="/students/{{ student.id }}/attendance/add" class="btn btn-success btn-sm btn-dark-mode">Katılım Ekle</a>
+                <a href="/students/{{ student.id }}" class="btn btn-info btn-sm btn-dark-mode">Detay</a>
+                <a href="/students/{{ student.id }}/edit" class="btn btn-warning btn-sm btn-dark-mode">Düzenle</a>
+            </td>
+        </tr>
+        <!-- Katılım Modalı -->
+        <div class="modal fade" id="attendanceModal{{ student.id }}" tabindex="-1">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <form method="POST" action="{{ url_for('add_attendance', id=student.id) }}">
+                <div class="modal-header">
+                  <h5 class="modal-title">Katılım Ekle - {{ student.name }}</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                  <div class="mb-3">
+                    <label class="form-label">Tarih</label>
+                    <input type="date" name="date" class="form-control" value="{{ now().strftime('%Y-%m-%d') }}" required>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Tutar (₺)</label>
+                    <input type="number" name="amount" class="form-control" step="0.01" required value="{{ student.lesson_fee }}" readonly>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Ödeme Durumu</label>
+                    <select name="payment_status" class="form-select" required>
+                      <option value="paid">Ödendi</option>
+                      <option value="pending">Bekliyor</option>
+                    </select>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Not</label>
+                    <input type="text" name="notes" class="form-control">
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                  <button type="submit" class="btn btn-primary">Kaydet</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <tr>
+            <td colspan="5" class="text-center">Henüz öğrenci eklenmemiş.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<!-- Genel Özel Ders Ekle Modalı -->
+<div class="modal fade" id="specialLessonModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="POST" action="{{ url_for('add_special_lesson') }}">
+        <div class="modal-header">
+          <h5 class="modal-title">Özel Ders Ekle</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Öğrenci</label>
+            <select name="student_ids" class="form-select" id="specialLessonStudentSelect" required>
+              <option value="" data-fee="">Seçiniz</option>
+              {% for student in students %}
+                <option value="{{ student.id }}" data-fee="{{ student.lesson_fee }}">{{ student.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Tutar (₺)</label>
+            <input type="number" name="amount" class="form-control" id="specialLessonAmountInput" step="0.01" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Tarih</label>
+            <input type="date" name="date" class="form-control" value="{{ now().strftime('%Y-%m-%d') }}" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Ödeme Durumu</label>
+            <select name="payment_status" class="form-select" required>
+              <option value="paid">Ödendi</option>
+              <option value="pending">Bekliyor</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Ödeme Türü</label>
+            <select name="payment_type" class="form-select" required>
+              <option value="Nakit">Nakit</option>
+              <option value="Banka">Banka</option>
+              <option value="Kredi Kartı">Kredi Kartı</option>
+              <option value="Diğer">Diğer</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Not</label>
+            <input type="text" name="notes" class="form-control">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+          <button type="submit" class="btn btn-primary">Kaydet</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+// Öğrenci seçilince ders ücretini otomatik doldur
+const studentSelect = document.getElementById('specialLessonStudentSelect');
+const amountInput = document.getElementById('specialLessonAmountInput');
+if (studentSelect && amountInput) {
+  studentSelect.addEventListener('change', function() {
+    const selected = this.options[this.selectedIndex];
+    const fee = selected.getAttribute('data-fee');
+    amountInput.value = fee ? fee : '';
+  });
+}
+</script>
+{% endblock %}
+
+<style>
+body.dark-mode .btn-dark-mode {
+    filter: brightness(0.85) contrast(1.2);
+    color: #fff !important;
+    border: 1px solid #444 !important;
+}
+body.dark-mode .btn-info.btn-dark-mode {
+    background-color: #1976d2 !important;
+    border-color: #1976d2 !important;
+}
+body.dark-mode .btn-warning.btn-dark-mode {
+    background-color: #ffa000 !important;
+    border-color: #ffa000 !important;
+    color: #23272b !important;
+}
+body.dark-mode .btn-success.btn-dark-mode {
+    background-color: #388e3c !important;
+    border-color: #388e3c !important;
+}
+body.dark-mode .table-dark {
+    background-color: #23272b !important;
+    color: #e0e0e0 !important;
+}
+body.dark-mode .table-dark thead th {
+    background-color: #181a1b !important;
+    color: #fff !important;
+    border-color: #444 !important;
+}
+body.dark-mode .table-dark tbody tr {
+    background-color: #23272b !important;
+}
+body.dark-mode .table-dark tbody tr:nth-of-type(even) {
+    background-color: #181a1b !important;
+}
+</style>

@@ -1,0 +1,921 @@
+<!-- templates/dashboard.html -->
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Yoga Finance{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1>Dashboard</h1>
+  <button class="btn btn-outline-primary" onclick="refreshDashboard()">
+    <i class="bi bi-arrow-clockwise"></i> Yenile
+  </button>
+</div>
+
+<!-- Tarih ve Hızlı İşlemler -->
+<!-- KISAYOL BUTONLARI KALDIRILDI -->
+
+<!-- Özet Kartları (Kategorize, Modern) -->
+<div class="row g-4 mb-4">
+    <div class="col-md-6 col-12">
+        <div class="card shadow-sm border-0 h-100 summary-card" style="border-radius:1.5rem; position:relative;">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <div class="fw-bold fs-5 text-success"><i class="bi bi-person-video3 me-2"></i>Özel Ders Özeti</div>
+                  <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="lessonSummaryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                      <span id="lessonSummaryPeriod">Aylık</span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="lessonSummaryDropdown">
+                      <li><a class="dropdown-item" href="#" onclick="setLessonSummaryPeriod('Günlük')">Günlük</a></li>
+                      <li><a class="dropdown-item" href="#" onclick="setLessonSummaryPeriod('Haftalık')">Haftalık</a></li>
+                      <li><a class="dropdown-item" href="#" onclick="setLessonSummaryPeriod('Aylık')">Aylık</a></li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="rounded-4 p-3 h-100 d-flex align-items-center gap-3 shadow-sm summary-card" style="min-height:100px;">
+                            <div class="d-flex align-items-center justify-content-center rounded-circle summary-icon" style="background:#e3fcec; width:48px; height:48px;">
+                                <i class="bi bi-person-video3 fs-4 text-success"></i>
+                            </div>
+                            <div>
+                                <div class="fw-semibold small summary-label">Özel Ders Geliri</div>
+                                <div class="fs-4 fw-bold summary-value" id="lessonIncome">₺0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="rounded-4 p-3 h-100 d-flex align-items-center gap-3 shadow-sm summary-card" style="min-height:100px;">
+                            <div class="d-flex align-items-center justify-content-center rounded-circle summary-icon" style="background:#e3f2fd; width:48px; height:48px;">
+                                <i class="bi bi-calendar-check fs-4 text-info"></i>
+                            </div>
+                            <div>
+                                <div class="fw-semibold small summary-label" id="monthlyLessonTitle">Verilen Ders Sayısı</div>
+                                <div class="fs-4 fw-bold summary-value" id="monthlyLessons">0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="rounded-4 p-3 h-100 d-flex align-items-center gap-3 shadow-sm summary-card" style="min-height:100px;">
+                            <div class="d-flex align-items-center justify-content-center rounded-circle summary-icon" style="background:#fdecea; width:48px; height:48px;">
+                                <i class="bi bi-cash-stack fs-4 text-danger"></i>
+                            </div>
+                            <div>
+                                <div class="fw-semibold small summary-label">Ödenmeyen Ders Ücreti</div>
+                                <div class="fs-4 fw-bold summary-value" id="unpaidLessonAmount">₺0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="rounded-4 p-3 h-100 d-flex align-items-center gap-3 shadow-sm summary-card" style="min-height:100px;">
+                            <div class="d-flex align-items-center justify-content-center rounded-circle summary-icon" style="background:#f3f4f6; width:48px; height:48px;">
+                                <i class="bi bi-people fs-4 text-secondary"></i>
+                            </div>
+                            <div>
+                                <div class="fw-semibold small summary-label">Kayıtlı Öğrenci</div>
+                                <div class="fs-4 fw-bold summary-value" id="totalStudents">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-12">
+        <div class="card shadow-sm border-0 h-100 summary-card" style="border-radius:1.5rem; position:relative;">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <div class="fw-bold fs-5 text-primary"><i class="bi bi-bag-check me-2"></i>Ürün Satışı Özeti</div>
+                  <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="productSummaryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                      <span id="productSummaryPeriod">Aylık</span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="productSummaryDropdown">
+                      <li><a class="dropdown-item" href="#" onclick="setProductSummaryPeriod('Günlük')">Günlük</a></li>
+                      <li><a class="dropdown-item" href="#" onclick="setProductSummaryPeriod('Haftalık')">Haftalık</a></li>
+                      <li><a class="dropdown-item" href="#" onclick="setProductSummaryPeriod('Aylık')">Aylık</a></li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="rounded-4 p-3 h-100 d-flex align-items-center gap-3 shadow-sm summary-card" style="min-height:100px;">
+                            <div class="d-flex align-items-center justify-content-center rounded-circle summary-icon" style="background:#fff8e1; width:48px; height:48px;">
+                                <i class="bi bi-bag-check fs-4 text-warning"></i>
+                            </div>
+                            <div>
+                                <div class="fw-semibold small summary-label">Ürün Satışı Geliri</div>
+                                <div class="fs-4 fw-bold summary-value" id="productIncome">₺0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="rounded-4 p-3 h-100 d-flex align-items-center gap-3 shadow-sm summary-card" style="min-height:100px;">
+                            <div class="d-flex align-items-center justify-content-center rounded-circle summary-icon" style="background:#f3e5f5; width:48px; height:48px;">
+                                <i class="bi bi-box fs-4 text-primary"></i>
+                            </div>
+                            <div>
+                                <div class="fw-semibold small summary-label">Ürün Satış Adedi</div>
+                                <div class="fs-4 fw-bold summary-value" id="productSalesCount">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Seçili Dönem Özeti ve Tarih Filtresi (FLEX) -->
+<div id="filteredSummary" style="display:none;">
+  <div style="display: flex; flex-wrap: wrap; gap: 24px;">
+    <div style="flex: 1 1 0; min-width: 320px; background:#fff; border:1.5px solid #e0e0e0; border-radius:1.1rem; box-shadow:0 2px 8px rgba(0,0,0,0.04); padding:2rem 1.5rem; display:flex; flex-direction:column; justify-content:center;">
+      <div style="font-size:1.2rem; font-weight:600; color:#1976d2; margin-bottom:1rem;">Tarih Aralığı Filtresi</div>
+      <form class="row g-2 align-items-end" onsubmit="event.preventDefault(); applyFilter();">
+        <div class="col">
+          <label style="font-size:0.95rem; color:#555;">Başlangıç</label>
+          <input type="date" id="startDate" class="form-control" style="border-radius:0.5rem;">
+        </div>
+        <div class="col">
+          <label style="font-size:0.95rem; color:#555;">Bitiş</label>
+          <input type="date" id="endDate" class="form-control" style="border-radius:0.5rem;">
+        </div>
+        <div class="col-auto d-flex gap-2">
+          <button class="btn btn-primary px-4" type="submit">Filtrele</button>
+          <button class="btn btn-secondary px-4" type="button" onclick="clearFilter()">Temizle</button>
+        </div>
+      </form>
+    </div>
+    <div style="flex: 1 1 0; min-width: 320px; background:#f8fafc; border:1.5px solid #e0e0e0; border-radius:1.1rem; box-shadow:0 2px 8px rgba(0,0,0,0.04); padding:2rem 1.5rem; display:flex; flex-direction:column; justify-content:center;">
+      <div style="font-size:1.2rem; font-weight:600; color:#333; margin-bottom:1rem;">Seçili Dönem Özeti</div>
+      <div class="d-flex flex-wrap justify-content-between align-items-center" style="gap:1rem;">
+        <div style="font-size:1.08rem; font-weight:500; color:#219150;">Toplam Gelir: <span id="filteredIncome" style="font-weight:700;">₺0</span></div>
+        <div style="font-size:1.08rem; font-weight:500; color:#e74c3c;">Toplam Gider: <span id="filteredExpense" style="font-weight:700;">₺0</span></div>
+        <div style="font-size:1.08rem; font-weight:500; color:#222;">Net Kâr: <span id="filteredNet" style="font-weight:700;">₺0</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Grafikler -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Günlük Gelir vs Gider</h5>
+                <canvas id="dailyChart" class="chart-canvas"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Son 12 Ay Gelir vs Gider</h5>
+                <canvas id="monthlyChart" class="chart-canvas"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Gelir Dağılımı (Kategori Bazlı)</h5>
+                <canvas id="incomeCategoryChart" class="chart-canvas"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Gider Dağılımı (Kategori Bazlı)</h5>
+                <canvas id="expenseCategoryChart" class="chart-canvas"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Özel Ders Ekle Modalı -->
+<div class="modal fade" id="specialLessonModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form method="POST" action="{{ url_for('add_special_lesson') }}">
+        <div class="modal-header">
+          <h5 class="modal-title">Özel Ders Katılımı Ekle</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Öğrenci Ara</label>
+            <input type="text" id="studentSearch" class="form-control" placeholder="İsim ile ara..." onkeyup="filterStudentList()">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Öğrenci Seç</label>
+            <div style="max-height:300px; overflow-y:auto;">
+              <ul class="list-group" id="studentList">
+                {% for student in students %}
+                <li class="list-group-item">
+                  <label class="form-check-label w-100">
+                    <input type="radio" name="student_ids" value="{{ student.id }}" class="form-check-input student-radio" data-fee="{{ student.lesson_fee }}" data-name="{{ student.name }}">
+                    {{ student.name }}
+                  </label>
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Seçilen Öğrencinin Standart Ücreti</label>
+            <input type="text" id="selectedStudentFee" class="form-control" readonly placeholder="Öğrenci seçiniz...">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Tarih</label>
+            <input type="date" name="date" class="form-control" value="{{ now().strftime('%Y-%m-%d') }}" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+          <button type="submit" class="btn btn-primary">Kaydet</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Ürün Sat Modalı -->
+<div class="modal fade" id="sellProductModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="sellProductForm">
+        <div class="modal-header">
+          <h5 class="modal-title">Ürün Sat</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Ürün Seç</label>
+            <select class="form-select" id="productSelect" name="product_id" required>
+              <option value="">Yükleniyor...</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Adet</label>
+            <input type="number" class="form-control" id="productQuantity" name="quantity" min="1" value="1" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Birim Fiyat</label>
+            <input type="number" class="form-control" id="productUnitPrice" name="unit_price" step="0.01" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Müşteri Adı (Opsiyonel)</label>
+            <input type="text" class="form-control" name="customer_name">
+          </div>
+          <div id="productStockInfo" class="text-muted small mb-2"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+          <button type="submit" class="btn btn-success">Satışı Tamamla</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for Monthly Lessons List -->
+<div class="modal fade" id="monthlyLessonsModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="monthlyLessonsModalTitle">Bu Ay Verilen Dersler</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <ul class="list-group" id="monthlyLessonsList">
+          <li class="list-group-item text-muted">Yükleniyor...</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Global chart instances
+let dailyChart, monthlyChart, incomeCategoryChart, expenseCategoryChart;
+
+// Chart.js varsayılan ayarları
+Chart.defaults.font.family = 'system-ui';
+Chart.defaults.plugins.legend.position = 'bottom';
+
+// Sayfa yüklendiğinde
+document.addEventListener('DOMContentLoaded', function() {
+    // Bugünün tarihini varsayılan bitiş tarihi yap
+    document.getElementById('endDate').value = new Date().toISOString().split('T')[0];
+    
+    // 30 gün öncesini başlangıç tarihi yap
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - 30);
+    document.getElementById('startDate').value = startDate.toISOString().split('T')[0];
+    
+    // Verileri yükle
+    loadSummary();
+    loadCharts();
+});
+
+// Özet verileri yükle
+function loadSummary() {
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    
+    let url = '/api/summary';
+    const params = new URLSearchParams();
+    if (startDate) params.append('start_date', startDate);
+    if (endDate) params.append('end_date', endDate);
+    if (params.toString()) url += '?' + params.toString();
+    
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            // Bugün
+            document.getElementById('todayIncome').textContent = formatTL(data.today.income);
+            document.getElementById('todayExpense').textContent = '-' + formatTL(data.today.expense);
+            document.getElementById('todayNet').textContent = formatTL(data.today.net_profit);
+            
+            // Bu hafta
+            if(document.getElementById('weekIncome')) document.getElementById('weekIncome').textContent = formatTL(data.week.income);
+            if(document.getElementById('weekExpense')) document.getElementById('weekExpense').textContent = '-' + formatTL(data.week.expense);
+            if(document.getElementById('weekNet')) document.getElementById('weekNet').textContent = formatTL(data.week.net_profit);
+            
+            // Bu ay
+            if(document.getElementById('monthIncome')) document.getElementById('monthIncome').textContent = formatTL(data.month.income);
+            if(document.getElementById('monthExpense')) document.getElementById('monthExpense').textContent = '-' + formatTL(data.month.expense);
+            if(document.getElementById('monthNet')) document.getElementById('monthNet').textContent = formatTL(data.month.net_profit);
+            
+            // İstatistikler
+            document.getElementById('totalStudents').textContent = data.stats.total_students;
+            document.getElementById('monthlyLessons').textContent = data.stats.monthly_lessons;
+            document.getElementById('productIncome').textContent = formatTL(data.stats.product_income || 0);
+            document.getElementById('lessonIncome').textContent = formatTL(data.stats.lesson_income || 0);
+            document.getElementById('unpaidLessonAmount').textContent = formatTL(data.stats.unpaid_lesson_amount || 0);
+            document.getElementById('productSalesCount').textContent = (data.stats.product_sales_count || 0);
+            
+            // Filtrelenmiş dönem
+            if (startDate || endDate) {
+                document.getElementById('filteredSummary').style.display = 'block';
+                document.getElementById('filteredIncome').textContent = formatTL(data.filtered.income);
+                document.getElementById('filteredExpense').textContent = formatTL(data.filtered.expense);
+                document.getElementById('filteredNet').textContent = formatTL(data.filtered.net_profit);
+            }
+            
+            // Ay ismini güncelle
+            const today = new Date();
+            const monthName = getTurkishMonthName(today.getMonth());
+            document.getElementById('monthlyLessonTitle').textContent = monthName + ' Ayı Verilen Ders Sayısı';
+            document.getElementById('monthlyLessonsModalTitle').textContent = monthName + ' Ayı Verilen Dersler';
+        });
+}
+
+// Grafikleri yükle
+function loadCharts() {
+    loadDailyChart();
+    loadMonthlyChart();
+    loadCategoryCharts();
+}
+
+// Günlük gelir/gider grafiği
+function loadDailyChart() {
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    let url = '/api/daily_chart';
+    const params = new URLSearchParams();
+    if (startDate) params.append('start_date', startDate);
+    if (endDate) params.append('end_date', endDate);
+    if (params.toString()) url += '?' + params.toString();
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            const ctx = document.getElementById('dailyChart').getContext('2d');
+            if (window.dailyChart instanceof Chart) window.dailyChart.destroy();
+            window.dailyChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Gelir',
+                        data: data.income,
+                        borderColor: '#219150',
+                        backgroundColor: 'rgba(33,145,80,0.15)',
+                        tension: 0.1
+                    }, {
+                        label: 'Gider',
+                        data: data.expense,
+                        borderColor: '#e74c3c',
+                        backgroundColor: 'rgba(231,76,60,0.15)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₺' + value.toFixed(0);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+}
+
+// Aylık gelir/gider grafiği
+function loadMonthlyChart() {
+    fetch('/api/monthly_chart')
+        .then(response => response.json())
+        .then(data => {
+            const ctx = document.getElementById('monthlyChart').getContext('2d');
+            if (window.monthlyChart instanceof Chart) window.monthlyChart.destroy();
+            window.monthlyChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Gelir',
+                        data: data.income,
+                        backgroundColor: 'rgba(33,145,80,0.5)',
+                        borderColor: '#219150',
+                        borderWidth: 1
+                    }, {
+                        label: 'Gider',
+                        data: data.expense,
+                        backgroundColor: 'rgba(231,76,60,0.5)',
+                        borderColor: '#e74c3c',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₺' + value.toFixed(0);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+}
+
+// Kategori dağılım grafikleri
+function loadCategoryCharts() {
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    // Gelir kategorileri
+    let incomeUrl = '/api/category_chart?type=income';
+    const incomeParams = new URLSearchParams();
+    if (startDate) incomeParams.append('start_date', startDate);
+    if (endDate) incomeParams.append('end_date', endDate);
+    if (incomeParams.toString()) incomeUrl += '&' + incomeParams.toString();
+    fetch(incomeUrl)
+        .then(response => response.json())
+        .then(data => {
+            const ctx = document.getElementById('incomeCategoryChart').getContext('2d');
+            if (window.incomeCategoryChart instanceof Chart) window.incomeCategoryChart.destroy();
+            window.incomeCategoryChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        data: data.values,
+                        backgroundColor: data.labels.map(l => l === 'Özel Ders' ? '#219150' : '#888')
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ₺' + context.parsed.toFixed(2);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    // Gider kategorileri
+    let expenseUrl = '/api/category_chart?type=expense';
+    const expenseParams = new URLSearchParams();
+    if (startDate) expenseParams.append('start_date', startDate);
+    if (endDate) expenseParams.append('end_date', endDate);
+    if (expenseParams.toString()) expenseUrl += '&' + expenseParams.toString();
+    fetch(expenseUrl)
+        .then(response => response.json())
+        .then(data => {
+            const ctx = document.getElementById('expenseCategoryChart').getContext('2d');
+            if (window.expenseCategoryChart instanceof Chart) window.expenseCategoryChart.destroy();
+            window.expenseCategoryChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        data: data.values,
+                        backgroundColor: data.labels.map(l => l === 'Maaş Ödemesi' || l === 'Etkinlik Gideri' ? '#e74c3c' : '#bbb')
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ₺' + context.parsed.toFixed(2);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+}
+
+// Filtre uygula
+function applyFilter() {
+    loadSummary();
+    loadCharts();
+}
+
+// Filtre temizle
+function clearFilter() {
+    document.getElementById('startDate').value = '';
+    document.getElementById('endDate').value = '';
+    document.getElementById('filteredSummary').style.display = 'none';
+    loadSummary();
+    loadCharts();
+}
+
+// CSV dışa aktar
+function exportCSV() {
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    
+    let url = '/export/csv';
+    const params = new URLSearchParams();
+    if (startDate) params.append('start_date', startDate);
+    if (endDate) params.append('end_date', endDate);
+    if (params.toString()) url += '?' + params.toString();
+    
+    window.location.href = url;
+}
+
+// Öğrenci arama ve ücret gösterme
+function filterStudentList() {
+  var input = document.getElementById('studentSearch');
+  var filter = input.value.toLowerCase();
+  var ul = document.getElementById('studentList');
+  var items = ul.getElementsByTagName('li');
+  for (var i = 0; i < items.length; i++) {
+    var label = items[i].textContent || items[i].innerText;
+    items[i].style.display = label.toLowerCase().indexOf(filter) > -1 ? '' : 'none';
+  }
+}
+
+// Seçilen öğrencinin ücretini göster
+function updateSelectedStudentFee() {
+  var radios = document.querySelectorAll('.student-radio');
+  var feeInput = document.getElementById('selectedStudentFee');
+  var selected = Array.from(radios).find(r => r.checked);
+  if (selected) {
+    var fee = selected.getAttribute('data-fee');
+    var name = selected.getAttribute('data-name');
+    feeInput.value = name + ' - ₺' + parseFloat(fee).toFixed(2);
+  } else {
+    feeInput.value = '';
+  }
+}
+
+document.querySelectorAll('.student-radio').forEach(function(radio) {
+  radio.addEventListener('change', updateSelectedStudentFee);
+});
+
+// Modal açıldığında ücret kutusunu sıfırla
+const specialLessonModal = document.getElementById('specialLessonModal');
+specialLessonModal.addEventListener('show.bs.modal', function () {
+  document.getElementById('selectedStudentFee').value = '';
+  document.querySelectorAll('.student-radio').forEach(function(radio) {
+    radio.checked = false;
+  });
+});
+
+function refreshDashboard() {
+  loadSummary();
+  loadCharts();
+}
+
+// Sayfa yüklendiğinde otomatik güncelle
+window.addEventListener('pageshow', function() {
+  refreshDashboard();
+});
+
+function getTurkishMonthName(monthIndex) {
+    const months = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+    return months[monthIndex];
+}
+
+// Bu ay verilen derslerin listesini yükle
+function loadMonthlyLessonsList() {
+    // Bu ayın başı ve sonu
+    const today = new Date();
+    const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+    const monthEnd = today;
+    const start = monthStart.toISOString().split('T')[0];
+    const end = monthEnd.toISOString().split('T')[0];
+    fetch(`/api/monthly_attendance?start_date=${start}&end_date=${end}`)
+        .then(response => response.json())
+        .then(data => {
+            const list = document.getElementById('monthlyLessonsList');
+            list.innerHTML = '';
+            if (data.length === 0) {
+                list.innerHTML = '<li class="list-group-item text-muted">Bu ay ders kaydı yok.</li>';
+            } else {
+                data.forEach(row => {
+                    const li = document.createElement('li');
+                    li.className = 'list-group-item';
+                    li.textContent = row.student_name + ' - ' + row.date + (row.notes ? ' (' + row.notes + ')' : '');
+                    list.appendChild(li);
+                });
+            }
+        });
+}
+
+// Modal açıldığında ders listesini yükle
+const monthlyLessonsModal = document.getElementById('monthlyLessonsModal');
+if (monthlyLessonsModal) {
+    monthlyLessonsModal.addEventListener('show.bs.modal', function () {
+        loadMonthlyLessonsList();
+    });
+}
+
+// Şu anki tarih ve saati göster
+function updateCurrentDateTime() {
+    const now = new Date();
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+    document.getElementById('currentDateTime').textContent = now.toLocaleString('tr-TR', options);
+}
+if (document.getElementById('currentDateTime')) {
+    updateCurrentDateTime();
+    setInterval(updateCurrentDateTime, 1000);
+}
+
+// Ürün Sat modalı için ürünleri yükle
+let productsCache = [];
+const productSelect = document.getElementById('productSelect');
+const productQuantity = document.getElementById('productQuantity');
+const productUnitPrice = document.getElementById('productUnitPrice');
+const productStockInfo = document.getElementById('productStockInfo');
+
+function loadProductsForSale() {
+    fetch('/api/products')
+        .then(res => res.json())
+        .then(products => {
+            productsCache = products;
+            productSelect.innerHTML = '<option value="">Ürün seçin...</option>';
+            products.forEach(p => {
+                productSelect.innerHTML += `<option value="${p.id}" data-price="${p.price}" data-stock="${p.stock}">${p.name} (Stok: ${p.stock})</option>`;
+            });
+        });
+}
+
+// Ürün seçilince fiyat ve stok göster
+productSelect.addEventListener('change', function() {
+    const selected = productsCache.find(p => p.id == this.value);
+    if (selected) {
+        productUnitPrice.value = selected.price;
+        productQuantity.max = selected.stock;
+        productStockInfo.textContent = `Stok: ${selected.stock}`;
+    } else {
+        productUnitPrice.value = '';
+        productQuantity.max = '';
+        productStockInfo.textContent = '';
+    }
+});
+
+// Modal açıldığında ürünleri yükle
+const sellProductModal = document.getElementById('sellProductModal');
+sellProductModal.addEventListener('show.bs.modal', function() {
+    loadProductsForSale();
+    productUnitPrice.value = '';
+    productQuantity.value = 1;
+    productStockInfo.textContent = '';
+});
+
+// Form submit
+const sellProductForm = document.getElementById('sellProductForm');
+sellProductForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const productId = productSelect.value;
+    const quantity = productQuantity.value;
+    const unitPrice = productUnitPrice.value;
+    const customerName = sellProductForm.customer_name.value;
+    if (!productId || !quantity || !unitPrice) return;
+    fetch(`/products/${productId}/sell`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `quantity=${encodeURIComponent(quantity)}&unit_price=${encodeURIComponent(unitPrice)}&customer_name=${encodeURIComponent(customerName)}`
+    })
+    .then(() => {
+        var modal = bootstrap.Modal.getInstance(sellProductModal);
+        modal.hide();
+        setTimeout(() => { refreshDashboard(); }, 500);
+    });
+});
+
+function updateNetColors() {
+  const netIds = ['todayNet','weekNet','monthNet'];
+  netIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const val = parseFloat(el.textContent.replace('₺','').replace(',','.').replace('TL',''));
+    el.classList.remove('text-success','text-danger','text-secondary');
+    if (isNaN(val)) return;
+    if (val < 0) {
+      el.classList.add('text-danger'); // kırmızı
+    } else if (val === 0) {
+      el.classList.add('text-secondary'); // gri
+    } else {
+      el.classList.add('text-success'); // yeşil
+    }
+  });
+  // Pozitif gelirler için yeşil
+  const incomeIds = ['todayIncome','weekIncome','monthIncome','lessonIncome'];
+  incomeIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      const val = parseFloat(el.textContent.replace('₺','').replace(',','.').replace('TL',''));
+      if (!isNaN(val) && val > 0) {
+        el.classList.remove('zero','negative');
+        el.classList.add('positive');
+      } else if (val === 0) {
+        el.classList.remove('positive','negative');
+        el.classList.add('zero');
+      } else {
+        el.classList.remove('positive','zero');
+        el.classList.add('negative');
+      }
+    }
+  });
+  // Ödenmeyen Ders Ücreti kırmızı ise vurgula
+  const unpaid = document.getElementById('unpaidLessonAmount');
+  if (unpaid) {
+    const val = parseFloat(unpaid.textContent.replace('₺','').replace(',','.').replace('TL',''));
+    if (!isNaN(val) && val > 0) {
+      unpaid.classList.remove('zero','positive');
+      unpaid.classList.add('negative');
+    } else if (val === 0) {
+      unpaid.classList.remove('positive','negative');
+      unpaid.classList.add('zero');
+    } else {
+      unpaid.classList.remove('positive','zero');
+      unpaid.classList.add('negative');
+    }
+  }
+}
+
+// Aktif sekme vurgusu
+function setPeriod(period) {
+  ['today','week','month'].forEach(p => {
+    document.getElementById('tab-' + p).classList.remove('active-period');
+  });
+  document.getElementById('tab-' + period).classList.add('active-period');
+  // Burada ilgili verileri yükleyebilirsiniz (isteğe bağlı)
+}
+
+// Net kâr renklerini özet verileri yükledikten sonra güncelle
+const origLoadSummary = loadSummary;
+window.loadSummary = function() {
+  origLoadSummary();
+  setTimeout(updateNetColors, 300);
+};
+
+function formatTL(val) {
+    if (isNaN(val)) return val;
+    return val.toLocaleString('tr-TR', { maximumFractionDigits: 0, minimumFractionDigits: 0 }) + ' TL';
+}
+
+// --- Yeni: Özet kutuları için dönem seçimi ---
+function getPeriodRange(period) {
+  const today = new Date();
+  let start, end;
+  end = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  if (period === 'Günlük') {
+    start = new Date(end);
+  } else if (period === 'Haftalık') {
+    start = new Date(end);
+    start.setDate(end.getDate() - end.getDay() + 1); // Pazartesi
+  } else { // Aylık
+    start = new Date(end.getFullYear(), end.getMonth(), 1);
+  }
+  return {
+    start: start.toISOString().split('T')[0],
+    end: end.toISOString().split('T')[0]
+  };
+}
+function setLessonSummaryPeriod(period) {
+  document.getElementById('lessonSummaryPeriod').textContent = period;
+  updateLessonSummaryBox();
+}
+function setProductSummaryPeriod(period) {
+  document.getElementById('productSummaryPeriod').textContent = period;
+  updateProductSummaryBox();
+}
+function updateLessonSummaryBox() {
+  const period = document.getElementById('lessonSummaryPeriod').textContent;
+  const range = getPeriodRange(period);
+  fetch(`/api/summary?start_date=${range.start}&end_date=${range.end}`)
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('lessonIncome').textContent = formatTL(data.stats.lesson_income || 0);
+      document.getElementById('monthlyLessons').textContent = data.stats.monthly_lessons || 0;
+      document.getElementById('unpaidLessonAmount').textContent = formatTL(data.stats.unpaid_lesson_amount || 0);
+      document.getElementById('totalStudents').textContent = data.stats.total_students || 0;
+    });
+}
+function updateProductSummaryBox() {
+  const period = document.getElementById('productSummaryPeriod').textContent;
+  const range = getPeriodRange(period);
+  fetch(`/api/summary?start_date=${range.start}&end_date=${range.end}`)
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('productIncome').textContent = formatTL(data.stats.product_income || 0);
+      document.getElementById('productSalesCount').textContent = data.stats.product_sales_count || 0;
+    });
+}
+document.addEventListener('DOMContentLoaded', function() {
+  updateLessonSummaryBox();
+  updateProductSummaryBox();
+});
+
+function setFinanceSummaryPeriod(period) {
+  document.getElementById('financeSummaryPeriod').textContent = period;
+  updateFinanceSummaryBox();
+}
+function updateFinanceSummaryBox() {
+  const period = document.getElementById('financeSummaryPeriod').textContent;
+  const range = getPeriodRange(period);
+  fetch(`/api/summary?start_date=${range.start}&end_date=${range.end}`)
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('financeIncome').textContent = formatTL(data.filtered.income || 0);
+      document.getElementById('financeExpense').textContent = formatTL(data.filtered.expense || 0);
+      document.getElementById('financeNet').textContent = formatTL(data.filtered.net_profit || 0);
+    });
+}
+document.addEventListener('DOMContentLoaded', function() {
+  updateFinanceSummaryBox();
+});
+</script>
+{% endblock %}
+
+<style>
+  /* Özet kartları için karanlık tema desteği - daha yüksek öncelik ve .bg-white override */
+  body.dark-mode .summary-card,
+  body.dark-mode .summary-card.bg-white,
+  .dark-mode .summary-card,
+  .dark-mode .summary-card.bg-white {
+    background: #23272b !important;
+    color: #e0e0e0 !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+  body.dark-mode .summary-icon,
+  .dark-mode .summary-icon {
+    background: #181a1b !important;
+    color: #44bba4 !important;
+  }
+  body.dark-mode .summary-label,
+  .dark-mode .summary-label,
+  body.dark-mode .text-muted,
+  .dark-mode .text-muted {
+    color: #cfd8dc !important;
+    font-weight: 500 !important;
+    opacity: 1 !important;
+  }
+  body.dark-mode .summary-value,
+  .dark-mode .summary-value {
+    color: #fff !important;
+    font-weight: 600;
+  }
+</style>

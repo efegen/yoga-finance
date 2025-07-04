@@ -1,0 +1,62 @@
+<!-- templates/product_form.html -->
+{% extends "base.html" %}
+
+{% block title %}{{ 'Ürün Düzenle' if product else 'Ürün Ekle' }} - Yoga Finance{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title">{{ 'Ürün Düzenle' if product else 'Yeni Ürün Ekle' }}</h2>
+                
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label">Ürün Adı *</label>
+                        <input type="text" name="name" class="form-control" value="{{ product.name if product else '' }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Kategori</label>
+                        <input type="text" name="category" class="form-control" value="{{ product.category if product else '' }}">
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Fiyat *</label>
+                            <input type="number" name="price" class="form-control" step="0.01" min="0" value="{{ product.price if product else 0 }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Stok *</label>
+                            <input type="number" name="stock" class="form-control" min="0" value="{{ product.stock if product else 0 }}" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Açıklama</label>
+                        <textarea name="description" class="form-control" rows="3">{{ product.description if product else '' }}</textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Ürün Resmi</label>
+                        {% if product and product.image_path %}
+                        <div class="mb-2">
+                            <img src="{{ url_for('static', filename=product.image_path) }}" style="max-width: 200px;" class="img-thumbnail">
+                            <p class="small text-muted mt-1">Yeni resim yüklerseniz mevcut resim değiştirilecektir.</p>
+                        </div>
+                        {% endif %}
+                        <input type="file" name="image" class="form-control" accept="image/*">
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Kaydet
+                        </button>
+                        <a href="{{ url_for('products') }}" class="btn btn-secondary">İptal</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

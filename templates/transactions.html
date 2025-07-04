@@ -1,0 +1,137 @@
+<!-- templates/transactions.html -->
+{% extends "base.html" %}
+
+{% block title %}İşlemler - Yoga Finance{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">İşlemler</h1>
+
+<div class="mb-3">
+  <form method="get" action="">
+    <div class="btn-group" role="group">
+      <button type="submit" name="type" value="" class="btn btn-outline-primary {% if not request.args.get('type') %}active{% endif %}">Tümü</button>
+      <button type="submit" name="type" value="income" class="btn btn-outline-success {% if request.args.get('type') == 'income' %}active{% endif %}">Gelirler</button>
+      <button type="submit" name="type" value="expense" class="btn btn-outline-danger {% if request.args.get('type') == 'expense' %}active{% endif %}">Giderler</button>
+    </div>
+  </form>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Yeni İşlem Ekle</h5>
+        <form method="POST" action="{{ url_for('add_transaction') }}">
+            <div class="row">
+                <div class="col-md-3">
+                    <label class="form-label">Tarih</label>
+                    <input type="date" name="date" class="form-control" required>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Tür</label>
+                    <select name="type" class="form-select" id="transactionType" required onchange="updateCategories()">
+                        <option value="">Seçiniz</option>
+                        <option value="income">Gelir</option>
+                        <option value="expense">Gider</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Kategori</label>
+                    <select name="category_id" class="form-select" id="categorySelect" required>
+                        <option value="">Önce tür seçiniz</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Tutar (₺)</label>
+                    <input type="number" name="amount" class="form-control" step="0.01" required min="0">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-plus-circle"></i> Ekle
+                    </button>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-10">
+                    <label class="form-label">Açıklama</label>
+                    <input type="text" name="description" class="form-control" placeholder="İsteğe bağlı açıklama">
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script type="application/json" id="incomeCategoriesData">
+    {{ income_categories|tojson }}
+</script>
+<script type="application/json" id="expenseCategoriesData">
+    {{ expense_categories|tojson }}
+</script>
+<script>
+// Kategorileri güvenli şekilde yükle
+const incomeCategories = JSON.parse(document.getElementById('incomeCategoriesData').textContent);
+const expenseCategories = JSON.parse(document.getElementById('expenseCategoriesData').textContent);
+
+function updateCategories() {
+    const type = document.getElementById('transactionType').value;
+    const categorySelect = document.getElementById('categorySelect');
+    
+    categorySelect.innerHTML = '<option value="">Kategori seçiniz</option>';
+    
+    const categories = type === 'income' ? incomeCategories : expenseCategories;
+    
+    categories.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat.id;
+        option.textContent = cat.name;
+        categorySelect.appendChild(option);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const dateInput = document.querySelector('input[name="date"]');
+    if (!dateInput.value) {
+        dateInput.value = new Date().toISOString().split('T')[0];
+    }
+});
+</script>
+<hr>
+<h2 class="mt-4">Geçmiş İşlemler</h2>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Tarih</th>
+            <th>Tür</th>
+            <th>Kategori</th>
+            <th>Tutar</th>
+            <th>Açıklama</th>
+            <th>Sil</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for t in transactions %}
+        {% if not request.args.get('type') or t.type == request.args.get('type') %}
+        <tr>
+            <td>{{ t.id }}</td>
+            <td>{{ t.date.strftime('%Y-%m-%d') }}</td>
+            <td>{{ 'Gelir' if t.type == 'income' else 'Gider' }}</td>
+            <td>{{ t.category.name if t.category else '' }}</td>
+            <td>₺{{ '%.2f'|format(t.amount) }}</td>
+            <td>{{ t.description }}</td>
+            <td>
+                <form method="POST" action="{{ url_for('delete_transaction', id=t.id) }}" style="display:inline;">
+                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Bu işlemi silmek istediğinize emin misiniz?')">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </form>
+            </td>
+        </tr>
+        {% endif %}
+        {% else %}
+        <tr>
+            <td colspan="7" class="text-center">Henüz işlem yok.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

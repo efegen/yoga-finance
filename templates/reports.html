@@ -1,0 +1,269 @@
+<!-- templates/reports.html -->
+{% extends "base.html" %}
+
+{% block title %}Raporlar - Yoga Finance{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Raporlar</h2>
+    <div class="row g-4">
+        <div class="col-lg-6 col-md-12">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title mb-3"><i class="bi bi-bar-chart-line"></i> Aylık Gelir-Gider</h5>
+                    <canvas id="monthlyChart" style="height:260px;max-height:260px;"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="card-title mb-2"><i class="bi bi-pie-chart"></i> Gelir Dağılımı</h6>
+                    <canvas id="categoryIncomeChart" style="height:180px;max-height:180px;"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="card-title mb-2"><i class="bi bi-pie-chart"></i> Gider Dağılımı</h6>
+                    <canvas id="categoryExpenseChart" style="height:180px;max-height:180px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="bi bi-calendar-month"></i> Aylık Gelir-Gider Raporu
+                </h5>
+                <p class="card-text">Yıl bazında aylık gelir, gider ve net kar özeti</p>
+                <button class="btn btn-primary" onclick="showMonthlyReport()">Raporu Görüntüle</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="bi bi-people"></i> Öğrenci Ödeme Raporu
+                </h5>
+                <p class="card-text">Öğrencilerin ödeme durumları ve borç özeti</p>
+                <button class="btn btn-primary" onclick="showStudentReport()">Raporu Görüntüle</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Aylık Rapor Modal -->
+<div class="modal fade" id="monthlyReportModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Aylık Gelir-Gider Raporu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label>Yıl Seç:</label>
+                    <select id="yearSelect" class="form-select" onchange="loadMonthlyReport()">
+                        <option value="2024">2024</option>
+                        <option value="2025" selected>2025</option>
+                    </select>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Ay</th>
+                                <th class="text-end">Gelir</th>
+                                <th class="text-end">Gider</th>
+                                <th class="text-end">Net Kar</th>
+                            </tr>
+                        </thead>
+                        <tbody id="monthlyReportBody">
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-dark">
+                                <th>TOPLAM</th>
+                                <th class="text-end" id="totalIncome">₺0</th>
+                                <th class="text-end" id="totalExpense">₺0</th>
+                                <th class="text-end" id="totalNet">₺0</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Öğrenci Rapor Modal -->
+<div class="modal fade" id="studentReportModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Öğrenci Ödeme Raporu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label>Başlangıç:</label>
+                        <input type="date" id="studentStartDate" class="form-control" onchange="loadStudentReport()">
+                    </div>
+                    <div class="col-md-6">
+                        <label>Bitiş:</label>
+                        <input type="date" id="studentEndDate" class="form-control" onchange="loadStudentReport()">
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Öğrenci</th>
+                                <th class="text-center">Ders Sayısı</th>
+                                <th class="text-end">Toplam</th>
+                                <th class="text-end">Ödenen</th>
+                                <th class="text-end">Bekleyen</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentReportBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/static/js/chart.umd.min.js"></script>
+<script>
+function showMonthlyReport() {
+    const modal = new bootstrap.Modal(document.getElementById('monthlyReportModal'));
+    modal.show();
+    loadMonthlyReport();
+}
+
+function showStudentReport() {
+    const modal = new bootstrap.Modal(document.getElementById('studentReportModal'));
+    modal.show();
+    
+    // Son 30 günü varsayılan olarak ayarla
+    const today = new Date();
+    const thirtyDaysAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+    
+    document.getElementById('studentStartDate').value = thirtyDaysAgo.toISOString().split('T')[0];
+    document.getElementById('studentEndDate').value = today.toISOString().split('T')[0];
+    
+    loadStudentReport();
+}
+
+function loadMonthlyReport() {
+    const year = document.getElementById('yearSelect').value;
+    
+    fetch(`/api/monthly_report?year=${year}`)
+        .then(response => response.json())
+        .then(data => {
+            const tbody = document.getElementById('monthlyReportBody');
+            tbody.innerHTML = '';
+            
+            data.data.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.month}</td>
+                    <td class="text-end">₺${row.income.toFixed(2)}</td>
+                    <td class="text-end">₺${row.expense.toFixed(2)}</td>
+                    <td class="text-end ${row.net_profit >= 0 ? 'text-success' : 'text-danger'}">
+                        ₺${row.net_profit.toFixed(2)}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            document.getElementById('totalIncome').textContent = `₺${data.totals.income.toFixed(2)}`;
+            document.getElementById('totalExpense').textContent = `₺${data.totals.expense.toFixed(2)}`;
+            document.getElementById('totalNet').textContent = `₺${data.totals.net_profit.toFixed(2)}`;
+            document.getElementById('totalNet').className = data.totals.net_profit >= 0 ? 'text-end text-success' : 'text-end text-danger';
+        });
+}
+
+function loadStudentReport() {
+    const startDate = document.getElementById('studentStartDate').value;
+    const endDate = document.getElementById('studentEndDate').value;
+    
+    let url = '/api/student_report';
+    const params = new URLSearchParams();
+    if (startDate) params.append('start_date', startDate);
+    if (endDate) params.append('end_date', endDate);
+    if (params.toString()) url += '?' + params.toString();
+    
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            const tbody = document.getElementById('studentReportBody');
+            tbody.innerHTML = '';
+            
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.name}</td>
+                    <td class="text-center">${row.sessions}</td>
+                    <td class="text-end">₺${row.total.toFixed(2)}</td>
+                    <td class="text-end text-success">₺${row.paid.toFixed(2)}</td>
+                    <td class="text-end ${row.pending > 0 ? 'text-danger' : ''}">₺${row.pending.toFixed(2)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Veri bulunamadı</td></tr>';
+            }
+        });
+}
+
+// Aylık gelir/gider grafiği
+fetch('/api/monthly_chart')
+  .then(res => res.json())
+  .then(data => {
+    new Chart(document.getElementById('monthlyChart').getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: data.labels,
+        datasets: [
+          { label: 'Gelir', data: data.income, borderColor: 'green', fill: false },
+          { label: 'Gider', data: data.expense, borderColor: 'red', fill: false }
+        ]
+      }
+    });
+  });
+// Kategori bazlı gelir/gider grafikleri
+fetch('/api/category_chart?type=income')
+  .then(res => res.json())
+  .then(data => {
+    new Chart(document.getElementById('categoryIncomeChart').getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: data.labels,
+        datasets: [{ data: data.values, backgroundColor: ['#4caf50', '#2196f3', '#ff9800', '#e91e63', '#9c27b0', '#607d8b'] }]
+      }
+    });
+  });
+fetch('/api/category_chart?type=expense')
+  .then(res => res.json())
+  .then(data => {
+    new Chart(document.getElementById('categoryExpenseChart').getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: data.labels,
+        datasets: [{ data: data.values, backgroundColor: ['#f44336', '#ffeb3b', '#00bcd4', '#8bc34a', '#ff9800', '#3f51b5'] }]
+      }
+    });
+  });
+</script>
+{% endblock %}

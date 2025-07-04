@@ -1,0 +1,97 @@
+<!-- templates/student_detail.html -->
+{% extends "base.html" %}
+
+{% block title %}Öğrenci Detay - Yoga Finance{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <h2 class="mb-4">Öğrenci Detayı</h2>
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="row g-3 align-items-center">
+        <div class="col-md-4">
+          <div class="fw-bold">İsim:</div>
+          <div>{{ student.name }}</div>
+        </div>
+        <div class="col-md-4">
+          <div class="fw-bold">Telefon:</div>
+          <div>{{ student.phone }}</div>
+        </div>
+        <div class="col-md-4">
+          <div class="fw-bold">Toplam Borç:</div>
+          <div class="text-danger">{{ pending_amount|int }} TL</div>
+          <div class="fw-bold mt-2">Toplam Ödeme:</div>
+          <div class="text-success">{{ paid_amount|int }} TL</div>
+          <div class="fw-bold mt-2">Kalan Borç:</div>
+          <div class="text-warning">{{ pending_amount|int }} TL</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card mb-4">
+    <div class="card-header bg-primary text-white">Özel Ders Katılımı Ekle</div>
+    <div class="card-body">
+      <form method="POST" action="/students/{{ student.id }}/attendance/add">
+        <div class="row g-3">
+          <div class="col-md-3">
+            <label for="date" class="form-label">Tarih</label>
+            <input type="date" class="form-control" id="date" name="date" value="{{ now().strftime('%Y-%m-%d') }}" required>
+          </div>
+          <div class="col-md-3">
+            <label for="amount" class="form-label">Tutar (TL)</label>
+            <input type="number" class="form-control" id="amount" name="amount" min="0" step="any" value="{{ student.lesson_fee|int }}" required>
+          </div>
+          <div class="col-md-3">
+            <label for="payment_status" class="form-label">Ödeme Durumu</label>
+            <select class="form-select" id="payment_status" name="payment_status">
+              <option value="paid">Ödendi</option>
+              <option value="pending">Beklemede</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label for="notes" class="form-label">Açıklama</label>
+            <input type="text" class="form-control" id="notes" name="notes" maxlength="100">
+          </div>
+        </div>
+        <div class="mt-4 text-end">
+          <button type="submit" class="btn btn-success px-4">Katılımı Ekle</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">İşlemler</div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-striped mb-0">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Tarih</th>
+              <th>Tutar</th>
+              <th>Tür</th>
+              <th>Kategori</th>
+              <th>Açıklama</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for t in transactions %}
+            <tr>
+              <td>{{ t.id }}</td>
+              <td>{{ t.date.strftime('%Y-%m-%d') }}</td>
+              <td>₺{{ '%.2f'|format(t.amount) }}</td>
+              <td>{% if t.type == 'income' %}Gelir{% else %}Gider{% endif %}</td>
+              <td>{{ t.category.name if t.category else '' }}</td>
+              <td>{{ t.description }}</td>
+            </tr>
+            {% endfor %}
+            {% if transactions|length == 0 %}
+            <tr><td colspan="6" class="text-center text-muted">İşlem bulunamadı.</td></tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

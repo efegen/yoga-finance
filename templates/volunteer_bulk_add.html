@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h3>Gönüllü Ekle</h3>
+  <form method="post">
+    {% if students|length == 0 %}
+      <div class="alert alert-warning">Gönüllü olarak eklenebilecek öğrenci yok.</div>
+    {% else %}
+      <div class="mb-3">
+        <label class="form-label">Öğrenci Seçin:</label>
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Ad Soyad</th>
+                <th>Telefon</th>
+                <th>Kayıt Tarihi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for s in students %}
+              <tr>
+                <td><input type="checkbox" name="student_ids" value="{{ s.id }}"></td>
+                <td>{{ s.name }}</td>
+                <td>{{ s.phone }}</td>
+                <td>{{ s.registration_date.strftime('%Y-%m-%d') }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary">Kaydet</button>
+      <a href="/volunteers" class="btn btn-secondary">İptal</a>
+    {% endif %}
+  </form>
+</div>
+{% endblock %} 

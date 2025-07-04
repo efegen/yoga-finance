@@ -1,0 +1,71 @@
+<!-- templates/event_form.html -->
+{% extends "base.html" %}
+
+{% block title %}Etkinlik Ekle - Yoga Finance{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3>Etkinlik Ekle</h3>
+    <form method="post">
+        <div class="mb-3">
+            <label for="name" class="form-label">Etkinlik Adı</label>
+            <input type="text" class="form-control" id="name" name="name" required>
+        </div>
+        <div class="mb-3">
+            <label for="date" class="form-label">Tarih</label>
+            <input type="date" class="form-control" id="date" name="date" required>
+        </div>
+        <div class="mb-3">
+            <label for="participant_count" class="form-label">Katılımcı Sayısı</label>
+            <input type="number" class="form-control" id="participant_count" name="participant_count">
+        </div>
+        <div class="mb-3">
+            <label for="revenue" class="form-label">Gelir (₺)</label>
+            <input type="number" step="0.01" class="form-control" id="revenue" name="revenue">
+        </div>
+        <div class="mb-3">
+            <label for="expenses" class="form-label">Gider (₺)</label>
+            <input type="number" step="0.01" class="form-control" id="expenses" name="expenses">
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Açıklama</label>
+            <textarea class="form-control" id="description" name="description"></textarea>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Gönüllü Ataması</label>
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Ad Soyad</th>
+                            <th>Telefon</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for v in volunteers %}
+                        <tr>
+                            <td><input type="checkbox" name="volunteer_ids" value="{{ v.id }}"></td>
+                            <td>{{ v.student.name }}</td>
+                            <td>{{ v.student.phone }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Kaydet</button>
+        <a href="/events" class="btn btn-secondary">İptal</a>
+    </form>
+</div>
+
+<script>
+// Sayfa yüklendiğinde bugünün tarihini ayarla
+document.addEventListener('DOMContentLoaded', function() {
+    const dateInput = document.querySelector('input[name="date"]');
+    if (!dateInput.value) {
+        dateInput.value = new Date().toISOString().split('T')[0];
+    }
+});
+</script>
+{% endblock %}

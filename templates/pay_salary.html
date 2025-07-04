@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h3>{{ volunteer.student.name }} - Maaş Ödemesi</h3>
+  <form method="post">
+    <div class="mb-3">
+      <label for="amount" class="form-label">Miktar (₺)</label>
+      <input type="number" step="0.01" class="form-control" id="amount" name="amount" required>
+    </div>
+    <div class="mb-3">
+      <label for="event_id" class="form-label">Etkinlik (isteğe bağlı)</label>
+      <select class="form-select" id="event_id" name="event_id">
+        <option value="">Diğer Ödeme</option>
+        {% for event in events %}
+          <option value="{{ event.id }}">{{ event.name }} ({{ event.date.strftime('%Y-%m-%d') }})</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="mb-3">
+      <label for="note" class="form-label">Not (isteğe bağlı)</label>
+      <textarea class="form-control" id="note" name="note"></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Kaydet</button>
+    <a href="/volunteers" class="btn btn-secondary">Geri</a>
+  </form>
+</div>
+{% endblock %} 

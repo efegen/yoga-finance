@@ -1,0 +1,17 @@
+# Python derleyici dosyaları
+__pycache__/
+*.pyc
+
+# Ortam dosyaları
+.env
+
+# Veritabanı ve instance klasörü
+instance/
+*.db
+
+# IDE ayarları
+.vscode/
+.idea/
+
+# Yüklenen dosyalar
+static/uploads/ 

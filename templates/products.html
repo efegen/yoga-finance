@@ -1,0 +1,119 @@
+<!-- templates/products.html -->
+{% extends "base.html" %}
+
+{% block title %}Ürünler - Yoga Finance{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Ürünler</h1>
+    <a href="{{ url_for('add_product') }}" class="btn btn-primary">
+        <i class="bi bi-plus"></i> Yeni Ürün Ekle
+    </a>
+</div>
+
+<div class="row">
+    {% for product in products %}
+    <div class="col-md-3 mb-4">
+        <div class="card product-card h-100">
+            {% if product.image_path %}
+            <img src="{{ url_for('static', filename=product.image_path) }}" class="card-img-top product-image" alt="{{ product.name }}">
+            {% else %}
+            <div class="card-img-top product-image bg-light d-flex align-items-center justify-content-center">
+                <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+            </div>
+            {% endif %}
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title">{{ product.name }}</h5>
+                <p class="text-muted small">{{ product.category or 'Kategorisiz' }}</p>
+                <p class="card-text flex-grow-1">{{ product.description or '' }}</p>
+                <div class="mt-auto">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="mb-0 text-primary">₺{{ "%.2f"|format(product.price) }}</h5>
+                        <span class="badge bg-secondary">Stok: {{ product.stock }}</span>
+                    </div>
+                    <div class="btn-group w-100" role="group">
+                        <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#sellModal{{ product.id }}" {% if product.stock == 0 %}disabled{% endif %}>
+                            <i class="bi bi-cart"></i> Sat
+                        </button>
+                        <a href="{{ url_for('edit_product', id=product.id) }}" class="btn btn-sm btn-warning">
+                            <i class="bi bi-pencil"></i> Düzenle
+                        </a>
+                        <button class="btn btn-sm btn-danger" data-id="{{ product.id }}" data-name="{{ product.name|e }}">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    
+    {% if not products %}
+    <div class="col-12">
+        <div class="alert alert-info text-center">
+            Henüz ürün eklenmemiş. <a href="{{ url_for('add_product') }}">İlk ürününüzü ekleyin!</a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Satış Modalları -->
+{% for product in products %}
+<div class="modal fade" id="sellModal{{ product.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('sell_product', id=product.id) }}">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ product.name }} - Satış</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <strong>Mevcut Stok:</strong> {{ product.stock }} adet
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Adet</label>
+                        <input type="number" name="quantity" class="form-control" min="1" max="{{ product.stock }}" value="1" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Birim Fiyat</label>
+                        <input type="number" name="unit_price" class="form-control" step="0.01" value="{{ product.price }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Müşteri Adı (Opsiyonel)</label>
+                        <input type="text" name="customer_name" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn btn-success">Satışı Tamamla</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<form id="deleteForm" method="POST" style="display: none;">
+</form>
+
+<script>
+function deleteProduct(id, name) {
+    if (confirm(`"${name}" ürününü silmek istediğinizden emin misiniz?`)) {
+        const form = document.getElementById('deleteForm');
+        form.action = `/products/${id}/delete`;
+        form.submit();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.btn-danger[data-id][data-name]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            const name = this.getAttribute('data-name');
+            deleteProduct(id, name);
+        });
+    });
+});
+</script>
+{% endblock %}

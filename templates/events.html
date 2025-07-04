@@ -1,0 +1,196 @@
+<!-- templates/events.html -->
+{% extends "base.html" %}
+
+{% block title %}Etkinlikler - Yoga Finance{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <h2 class="mb-4">Etkinlikler</h2>
+  <div class="mb-3 text-end">
+    <button class="btn btn-primary" id="showAddEventBtn">Etkinlik Ekle</button>
+  </div>
+  <div class="card mb-4" id="eventFormCard" style="display:none;">
+    <div class="card-header bg-primary text-white">Etkinlik Oluştur</div>
+    <div class="card-body">
+      <form method="POST" action="/events/add">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="name" class="form-label">Etkinlik Adı</label>
+            <input type="text" class="form-control" id="name" name="name" required>
+          </div>
+          <div class="col-md-6">
+            <label for="date" class="form-label">Tarih</label>
+            <input type="date" class="form-control" id="date" name="date" required>
+          </div>
+          <div class="col-md-6">
+            <label for="participant_count" class="form-label">Katılımcı Sayısı</label>
+            <input type="number" class="form-control" id="participant_count" name="participant_count" min="0" value="0">
+          </div>
+          <div class="col-md-6">
+            <label for="revenue" class="form-label">Gelir (TL)</label>
+            <input type="number" class="form-control" id="revenue" name="revenue" min="0" step="any" value="0">
+          </div>
+          <div class="col-md-6">
+            <label for="expenses" class="form-label">Gider (TL)</label>
+            <input type="number" class="form-control" id="expenses" name="expenses" min="0" step="any" value="0">
+          </div>
+          <div class="col-md-12">
+            <label for="description" class="form-label">Açıklama</label>
+            <textarea class="form-control" id="description" name="description" rows="2"></textarea>
+          </div>
+          <div class="col-md-12">
+            <label class="form-label">Katılacak Öğrenciler</label>
+            <div class="mb-2 d-flex gap-2">
+              <input type="text" class="form-control" id="newStudentName" placeholder="İsim yazarak ekle...">
+              <button type="button" class="btn btn-outline-primary" id="addNewStudentBtn">Ekle</button>
+            </div>
+            <div class="mb-2">
+              <div class="border rounded p-2" style="max-height:180px; overflow-y:auto;">
+                <div class="mb-1 fw-bold">Mevcut Öğrenciler</div>
+                <div id="studentCheckboxList">
+                  {% for student in students %}
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" value="{{ student.name }}" id="studentCheck{{ student.id }}">
+                      <label class="form-check-label" for="studentCheck{{ student.id }}">{{ student.name }}</label>
+                    </div>
+                  {% endfor %}
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-success mt-2" id="addSelectedStudentsBtn">Seçilenleri Ekle</button>
+              </div>
+            </div>
+            <div class="mb-2">
+              <div class="border rounded p-2 bg-light">
+                <div class="mb-1 fw-bold">Katılımcı Listesi</div>
+                <ul class="list-group list-group-flush" id="participantList"></ul>
+              </div>
+            </div>
+            <input type="hidden" name="participants" id="participantsInput">
+            <small class="text-muted">İsim yazarak veya mevcutlardan seçerek katılımcı ekleyebilirsiniz.</small>
+          </div>
+        </div>
+        <div class="mt-4 text-end">
+          <button type="submit" class="btn btn-success px-4">Etkinlik Oluştur</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">Geçmiş Etkinlikler</div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-striped mb-0" id="eventsTable">
+          <thead>
+            <tr>
+              <th>Adı</th>
+              <th>Tarih</th>
+              <th>Katılımcı</th>
+              <th>Gelir</th>
+              <th>Gider</th>
+              <th>Açıklama</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for event in events %}
+            <tr class="event-row" data-event='{{ event | tojson | safe }}'>
+              <td>{{ event.name }}</td>
+              <td>{{ event.date }}</td>
+              <td>{{ event.participant_count }}</td>
+              <td>{{ event.revenue }}</td>
+              <td>{{ event.expenses }}</td>
+              <td>{{ event.description }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <!-- Etkinlik Detay Modalı -->
+  <div class="modal fade" id="eventDetailModal" tabindex="-1" aria-labelledby="eventDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="eventDetailModalLabel">Etkinlik Detayı</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="eventDetailBody">
+          <!-- Detaylar JS ile doldurulacak -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Katılımcı ekleme JS
+const participantList = document.getElementById('participantList');
+const participantsInput = document.getElementById('participantsInput');
+let participants = [];
+
+function updateParticipantList() {
+  participantList.innerHTML = '';
+  participants.forEach((name, idx) => {
+    const li = document.createElement('li');
+    li.className = 'list-group-item d-flex justify-content-between align-items-center';
+    li.textContent = name;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btn btn-sm btn-danger';
+    btn.textContent = '×';
+    btn.onclick = () => {
+      participants.splice(idx, 1);
+      updateParticipantList();
+    };
+    li.appendChild(btn);
+    participantList.appendChild(li);
+  });
+  participantsInput.value = JSON.stringify(participants);
+}
+
+document.getElementById('addNewStudentBtn').onclick = function() {
+  const name = document.getElementById('newStudentName').value.trim();
+  if (name && !participants.includes(name)) {
+    participants.push(name);
+    updateParticipantList();
+    document.getElementById('newStudentName').value = '';
+  }
+};
+
+document.getElementById('addSelectedStudentsBtn').onclick = function() {
+  const checks = document.querySelectorAll('#studentCheckboxList input[type=checkbox]:checked');
+  checks.forEach(chk => {
+    if (!participants.includes(chk.value)) {
+      participants.push(chk.value);
+    }
+    chk.checked = false;
+  });
+  updateParticipantList();
+};
+
+// Etkinlik ekle formunu aç/kapat
+const showAddEventBtn = document.getElementById('showAddEventBtn');
+const eventFormCard = document.getElementById('eventFormCard');
+showAddEventBtn.onclick = function() {
+  eventFormCard.style.display = eventFormCard.style.display === 'none' ? '' : 'none';
+};
+
+// Etkinlik detay modalı
+const eventRows = document.querySelectorAll('.event-row');
+const eventDetailModal = new bootstrap.Modal(document.getElementById('eventDetailModal'));
+const eventDetailBody = document.getElementById('eventDetailBody');
+eventRows.forEach(row => {
+  row.onclick = function() {
+    const event = JSON.parse(this.dataset.event);
+    eventDetailBody.innerHTML = `
+      <div><b>Adı:</b> ${event.name}</div>
+      <div><b>Tarih:</b> ${event.date || ''}</div>
+      <div><b>Katılımcı:</b> ${event.participant_count}</div>
+      <div><b>Gelir:</b> ${event.revenue}</div>
+      <div><b>Gider:</b> ${event.expenses}</div>
+      <div><b>Açıklama:</b> ${event.description || ''}</div>
+    `;
+    eventDetailModal.show();
+  };
+});
+</script>
+{% endblock %}

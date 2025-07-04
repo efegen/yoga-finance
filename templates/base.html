@@ -1,0 +1,250 @@
+<!-- templates/base.html -->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Yoga Finance{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <script src="{{ url_for('static', filename='js/chart.umd.min.js') }}"></script>
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background-color: #f8f9fa;
+        }
+        .sidebar .nav-link {
+            color: #197278 !important;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.2s, color 0.2s;
+        }
+        .sidebar .nav-link i {
+            color: #44bba4 !important;
+            transition: color 0.2s;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link:focus {
+            background: #44bba4 !important;
+            color: #fff !important;
+        }
+        .sidebar .nav-link:hover i, .sidebar .nav-link:focus i {
+            color: #fff !important;
+        }
+        .nav-link.active {
+            background-color: #44bba4 !important;
+            color: #fff !important;
+        }
+        .nav-link.active i {
+            color: #fff !important;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+        .product-card {
+            height: 100%;
+            transition: all 0.3s;
+        }
+        .product-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .product-image {
+            height: 200px;
+            object-fit: cover;
+        }
+        .chart-canvas {
+            height: 300px !important;
+            max-width: 100%;
+            display: block;
+            margin: 0 auto;
+        }
+        /* Dark mode styles */
+        body.dark-mode, .dark-mode .container-fluid {
+            background: #181a1b !important;
+            color: #e0e0e0 !important;
+        }
+        .dark-mode .card, .dark-mode .card-hover, .dark-mode .modal-content {
+            background: #23272b !important;
+            color: #e0e0e0 !important;
+            border-color: #333 !important;
+        }
+        .dark-mode .table, .dark-mode .table-striped > tbody > tr:nth-of-type(odd) {
+            background-color: #23272b !important;
+            color: #e0e0e0 !important;
+        }
+        .dark-mode .table-striped > tbody > tr:nth-of-type(even) {
+            background-color: #181a1b !important;
+        }
+        .dark-mode .nav-tabs .nav-link.active, .dark-mode .nav-tabs .nav-link.active.student-tab, .dark-mode .nav-tabs .nav-link.active.volunteer-tab {
+            background: #23272b !important;
+            color: #fff !important;
+            border-color: #333 !important;
+        }
+        .dark-mode .nav-tabs .nav-link {
+            color: #90caf9 !important;
+        }
+        .dark-mode .btn, .dark-mode .btn-primary, .dark-mode .btn-outline-primary, .dark-mode .btn-success, .dark-mode .btn-danger, .dark-mode .btn-info, .dark-mode .btn-warning, .dark-mode .btn-secondary {
+            color: #fff !important;
+            border-color: #444 !important;
+        }
+        .dark-mode .btn-outline-primary {
+            background: #23272b !important;
+        }
+        .dark-mode .form-control, .dark-mode .form-select {
+            background: #23272b !important;
+            color: #e0e0e0 !important;
+            border-color: #444 !important;
+        }
+        .dark-mode .form-control:focus, .dark-mode .form-select:focus {
+            background: #23272b !important;
+            color: #fff !important;
+        }
+        .dark-mode .modal-content {
+            background: #23272b !important;
+            color: #e0e0e0 !important;
+        }
+        .dark-mode .alert {
+            background: #23272b !important;
+            color: #fff !important;
+            border-color: #444 !important;
+        }
+        .dark-mode .sidebar {
+            background: #23272b !important;
+        }
+        .dark-mode .sidebar .nav-link {
+            color: #b2dfdb !important;
+        }
+        .dark-mode .sidebar .nav-link i {
+            color: #44bba4 !important;
+        }
+        .dark-mode .sidebar .nav-link:hover, .dark-mode .sidebar .nav-link:focus {
+            background: #44bba4 !important;
+            color: #fff !important;
+        }
+        .dark-mode .sidebar .nav-link:hover i, .dark-mode .sidebar .nav-link:focus i {
+            color: #fff !important;
+        }
+        .dark-mode .nav-link.active {
+            background-color: #44bba4 !important;
+            color: #fff !important;
+        }
+        .dark-mode .nav-link.active i {
+            color: #fff !important;
+        }
+        .dark-mode .table-bordered th, .dark-mode .table-bordered td {
+            border-color: #444 !important;
+        }
+        .dark-mode .table thead th {
+            color: #fff !important;
+        }
+        .dark-mode .list-group-item {
+            background: #23272b !important;
+            color: #e0e0e0 !important;
+            border-color: #444 !important;
+        }
+        .dark-mode .dropdown-menu {
+            background: #23272b !important;
+            color: #e0e0e0 !important;
+        }
+        .dark-mode .dropdown-item {
+            color: #e0e0e0 !important;
+        }
+        .dark-mode .dropdown-item.active, .dark-mode .dropdown-item:active {
+            background: #444 !important;
+            color: #fff !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2 sidebar p-0">
+                <div class="p-3">
+                    <h4 class="text-center mb-4">
+                        <picture>
+                            <source srcset="{{ url_for('static', filename='logo2.png') }}" media="(prefers-color-scheme: dark)">
+                            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" style="max-height: 100px; max-width: 100%; display: block; margin: 0 auto;">
+                        </picture>
+                    </h4>
+                    <nav class="nav flex-column">
+                        <a class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">
+                            <i class="bi bi-speedometer2"></i> Ana Sayfa
+                        </a>
+                        <a class="nav-link {% if request.endpoint == 'students' or 'student' in request.endpoint %}active{% endif %}" href="{{ url_for('students') }}">
+                            <i class="bi bi-people"></i> Öğrenciler
+                        </a>
+                        <a class="nav-link {% if 'product' in request.endpoint %}active{% endif %}" href="{{ url_for('products') }}">
+                            <i class="bi bi-box"></i> Ürünler
+                        </a>
+                        <a class="nav-link {% if 'event' in request.endpoint %}active{% endif %}" href="{{ url_for('events') }}">
+                            <i class="bi bi-calendar-event"></i> Etkinlikler
+                        </a>
+                        <a class="nav-link {% if request.endpoint == 'transactions' %}active{% endif %}" href="{{ url_for('transactions') }}">
+                            <i class="bi bi-cash-stack"></i> İşlemler
+                        </a>
+                        <a class="nav-link {% if request.endpoint == 'categories' %}active{% endif %}" href="{{ url_for('categories') }}">
+                            <i class="bi bi-tags"></i> Kategoriler
+                        </a>
+                        <a class="nav-link {% if request.endpoint == 'reports' %}active{% endif %}" href="{{ url_for('reports') }}">
+                            <i class="bi bi-file-earmark-bar-graph"></i> Raporlar
+                        </a>
+                    </nav>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-md-10 p-4">
+                <div class="d-flex justify-content-end mb-2">
+                    <button id="darkModeToggle" class="btn btn-outline-secondary btn-sm" title="Koyu Tema Aç/Kapat">
+                        <i class="bi bi-moon"></i> <span id="darkModeText">Koyu Tema</span>
+                    </button>
+                </div>
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    // Dark mode toggle logic
+    function setDarkMode(on) {
+        if (on) {
+            document.body.classList.add('dark-mode');
+            localStorage.setItem('darkMode', 'on');
+            document.getElementById('darkModeText').textContent = 'Açık Tema';
+            document.getElementById('darkModeToggle').querySelector('i').className = 'bi bi-brightness-high';
+        } else {
+            document.body.classList.remove('dark-mode');
+            localStorage.setItem('darkMode', 'off');
+            document.getElementById('darkModeText').textContent = 'Koyu Tema';
+            document.getElementById('darkModeToggle').querySelector('i').className = 'bi bi-moon';
+        }
+    }
+    document.getElementById('darkModeToggle').addEventListener('click', function() {
+        setDarkMode(!document.body.classList.contains('dark-mode'));
+    });
+    // On load, set theme from localStorage
+    if (localStorage.getItem('darkMode') === 'on') {
+        setDarkMode(true);
+    }
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

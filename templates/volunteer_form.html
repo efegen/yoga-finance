@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h3>{{ volunteer and 'Gönüllü Düzenle' or 'Gönüllü Ekle' }}</h3>
+  <form method="post">
+    <div class="mb-3">
+      <label for="student_id" class="form-label">Öğrenci</label>
+      {% if volunteer %}
+        <select class="form-select" id="student_id" name="student_id" disabled>
+          <option value="{{ volunteer.student_id }}" selected>{{ volunteer.student.name }}</option>
+        </select>
+        <input type="hidden" name="student_id" value="{{ volunteer.student_id }}">
+      {% else %}
+        <select class="form-select" id="student_id" name="student_id" required>
+          <option value="">Seçiniz</option>
+          {% for s in students %}
+            <option value="{{ s.id }}">{{ s.name }}</option>
+          {% endfor %}
+        </select>
+      {% endif %}
+    </div>
+    <div class="mb-3">
+      <label for="name" class="form-label">Ad Soyad</label>
+      <input type="text" class="form-control" id="name" name="name" required value="{{ volunteer.name if volunteer else '' }}">
+    </div>
+    <div class="mb-3">
+      <label for="phone" class="form-label">Telefon</label>
+      <input type="text" class="form-control" id="phone" name="phone" value="{{ volunteer.phone if volunteer else '' }}">
+    </div>
+    <div class="mb-3">
+      <label for="event_fee" class="form-label">Etkinlik Ücreti (TL)</label>
+      <input type="number" step="0.01" class="form-control" id="event_fee" name="event_fee" value="{{ volunteer.event_fee if volunteer else '' }}">
+    </div>
+    <div class="mb-3">
+      <label for="notes" class="form-label">Notlar</label>
+      <textarea class="form-control" id="notes" name="notes">{{ volunteer.notes if volunteer else '' }}</textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Kaydet</button>
+    <a href="/volunteers" class="btn btn-secondary">İptal</a>
+  </form>
+</div>
+{% endblock %} 

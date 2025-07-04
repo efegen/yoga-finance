@@ -1,0 +1,46 @@
+<!-- templates/settings.html -->
+{% extends "base.html" %}
+
+{% block title %}Ayarlar - Yoga Finance{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Ayarlar</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Genel Ayarlar</h5>
+                <form method="POST" action="{{ url_for('settings') }}">
+                    <div class="mb-3">
+                        <label class="form-label">Varsayılan KDV Oranı (%)</label>
+                        <input type="number" name="default_vat_rate" class="form-control" 
+                               value="{{ (settings.default_vat_rate * 100)|round(2) }}" 
+                               step="0.01" min="0" max="20" required>
+                        <div class="form-text">
+                            Yeni işlemler için varsayılan KDV oranı. 
+                            Kategori seçildiğinde kategorinin KDV oranı kullanılır.
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Kaydet
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Veritabanı</h5>
+                <p>Veritabanı dosyası: <code>yoga_finance.db</code></p>
+                <p class="text-muted">
+                    Veritabanınızı yedeklemek için bu dosyayı kopyalayın.
+                    Geri yüklemek için yedek dosyayı aynı isimle değiştirin.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
